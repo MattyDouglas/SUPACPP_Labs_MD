@@ -24,6 +24,11 @@ public:
   virtual void printInfo(); //Dump parameter info about the current function (Overridable)
   virtual double callFunction(double x); //Call the function with value x (Overridable)
 
+  double get_integral () const {return m_Integral;}   // Gets integral from protected member - needed to print integral of each method
+  
+  // Additional function to plot data, sampled data, and the curve on one plot (I couldn't think of another way)
+  void plotALL(std::vector<double>& data, std::vector<double>& samples, int NBins);
+ 
   //Protected members can be accessed by child classes but not users
 protected:
   double m_RMin;

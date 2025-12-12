@@ -62,8 +62,22 @@ Integration by hand (output needed to normalise function when plotting)
 ###################
 */ 
 double FiniteFunction::integrate(int Ndiv){ //private
-  //ToDo write an integrator
-  return -99;  
+  //ToDo write an integrator - modified by Matthew Douglas on 8/12/25
+  // Using Trapezoidal rule
+  double step = (m_RMax - m_RMin)/static_cast<double> (Ndiv);   // Calculates width of each "bin" in integral
+  double sum = 0;   // Initialises integral value
+  
+  double x = m_RMin;   // Starts at left edge of integral
+  double f1 = callFunction(x);   // Evaluates function at that edge
+
+  // Looping through each "bin"
+  for (int i = 1; i <= Ndiv; ++i) {
+    double x2 = m_RMin + i * step;   // Calculates other edge of each "bin"
+    double f2 = callFunction(x2);    // Evaluates function at right edge of each "bin"
+    sum += 0.5 * (f1 + f2) * step;   // Adds trapezoid area to overall total
+    f1 = f2;                         // Shifts right edge to become left edge for new "bin"
+  }
+  return sum;
 }
 double FiniteFunction::integral(int Ndiv) { //public
   if (Ndiv <= 0){
@@ -162,13 +176,17 @@ std::vector< std::pair<double,double> > FiniteFunction::makeHist(std::vector<dou
   for (double point : points){
     //Get bin index (starting from 0) the point falls into using point value, range, and Nbins
     int bindex = static_cast<int>(floor((point-m_RMin)/((m_RMax-m_RMin)/(double)Nbins)));
+    // Ignoring data out of the range
+    if (bindex >= 0 && bindex < Nbins) {
     bins[bindex]++; //weight of 1 for each data point
     norm++; //Total number of data points
+    }
   }
   double binwidth = (m_RMax-m_RMin)/(double)Nbins;
   for (int i=0; i<Nbins; i++){
     double midpoint = m_RMin + i*binwidth + binwidth/2; //Just put markers at the midpoint rather than drawing bars
     double normdata = bins[i]/((double)norm*binwidth); //Normalise with N = 1/(Ndata*binwidth)
+    if (norm == 0) norm = 1;   // Guard against division by zero
     histdata.push_back(std::make_pair(midpoint,normdata));
   }
   return histdata;
